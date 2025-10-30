@@ -1,0 +1,1613 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quản lý Dự án - Theo dõi Giai đoạn</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      overflow: hidden;
+    }
+    
+    .header {
+      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+      position: relative;
+    }
+    
+    .header h1 {
+      font-size: 2.2em;
+      margin-bottom: 10px;
+    }
+    
+    .sync-status {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(255,255,255,0.2);
+      padding: 8px 15px;
+      border-radius: 20px;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .sync-indicator {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #27ae60;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    
+    .main-content {
+      padding: 30px;
+    }
+    
+    .tabs {
+      display: flex;
+      gap: 5px;
+      margin-bottom: 30px;
+      border-bottom: 2px solid #e0e0e0;
+      flex-wrap: wrap;
+    }
+    
+    .tab {
+      padding: 12px 20px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 15px;
+      color: #666;
+      border-bottom: 3px solid transparent;
+      transition: all 0.3s;
+      white-space: nowrap;
+      position: relative;
+    }
+    
+    .tab.active {
+      color: #1e3c72;
+      border-bottom-color: #1e3c72;
+      font-weight: bold;
+    }
+    
+    .tab:hover {
+      color: #1e3c72;
+    }
+    
+    .tab-badge {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      background: #e74c3c;
+      color: white;
+      border-radius: 10px;
+      padding: 2px 6px;
+      font-size: 11px;
+      font-weight: bold;
+    }
+    
+    .tab-content {
+      display: none;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #333;
+      font-weight: 600;
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: border-color 0.3s;
+    }
+    
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #1e3c72;
+    }
+    
+    .form-group textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+    
+    .stage-timeline-form {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 12px;
+      margin-top: 20px;
+    }
+    
+    .stage-timeline-form h4 {
+      color: #1e3c72;
+      margin-bottom: 15px;
+    }
+    
+    .stage-input-group {
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      border-left: 4px solid #1e3c72;
+    }
+    
+    .stage-input-group h5 {
+      color: #333;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .btn {
+      padding: 12px 30px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      transition: all 0.3s;
+      margin-right: 10px;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(30, 60, 114, 0.4);
+    }
+    
+    .btn-success {
+      background: #27ae60;
+      color: white;
+    }
+    
+    .btn-warning {
+      background: #f39c12;
+      color: white;
+    }
+    
+    .btn-danger {
+      background: #e74c3c;
+      color: white;
+    }
+    
+    .btn-info {
+      background: #3498db;
+      color: white;
+    }
+    
+    .btn-small {
+      padding: 6px 12px;
+      font-size: 13px;
+    }
+    
+    .project-list {
+      display: grid;
+      gap: 20px;
+      margin-top: 20px;
+    }
+    
+    .project-card {
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 25px;
+      border-left: 6px solid #1e3c72;
+      transition: all 0.3s;
+      position: relative;
+    }
+    
+    .project-card.delayed {
+      border-left-color: #e74c3c;
+      background: #fff5f5;
+    }
+    
+    .project-card.warning {
+      border-left-color: #f39c12;
+      background: #fffbf0;
+    }
+    
+    .project-card:hover {
+      transform: translateX(5px);
+      box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    }
+    
+    .project-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    
+    .project-title {
+      font-size: 1.4em;
+      color: #333;
+      font-weight: bold;
+    }
+    
+    .project-code {
+      font-size: 0.9em;
+      color: #666;
+      background: #e0e0e0;
+      padding: 4px 10px;
+      border-radius: 5px;
+    }
+    
+    .stage-badge {
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: bold;
+    }
+    
+    .stage-quote {
+      background: #fff3cd;
+      color: #856404;
+    }
+    
+    .stage-order {
+      background: #cce5ff;
+      color: #004085;
+    }
+    
+    .stage-production {
+      background: #d1ecf1;
+      color: #0c5460;
+    }
+    
+    .stage-installation {
+      background: #d4edda;
+      color: #155724;
+    }
+    
+    .stage-handover {
+      background: #e2e3e5;
+      color: #383d41;
+    }
+    
+    .stage-payment {
+      background: #d4edda;
+      color: #155724;
+    }
+    
+    .stage-completed {
+      background: #28a745;
+      color: white;
+    }
+    
+    .delay-badge {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      padding: 8px 15px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+      animation: blink 2s infinite;
+    }
+    
+    .delay-critical {
+      background: #e74c3c;
+      color: white;
+    }
+    
+    .delay-warning {
+      background: #f39c12;
+      color: white;
+    }
+    
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+    
+    .project-info {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin: 15px 0;
+      padding: 15px;
+      background: white;
+      border-radius: 8px;
+    }
+    
+    .info-item {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .info-label {
+      font-size: 12px;
+      color: #888;
+      margin-bottom: 5px;
+    }
+    
+    .info-value {
+      font-size: 15px;
+      color: #333;
+      font-weight: 600;
+    }
+    
+    .info-value.delayed {
+      color: #e74c3c;
+    }
+    
+    .info-value.warning {
+      color: #f39c12;
+    }
+    
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: #e0e0e0;
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 15px 0;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%);
+      transition: width 0.3s;
+    }
+    
+    .progress-fill.delayed {
+      background: linear-gradient(90deg, #e74c3c 0%, #c0392b 100%);
+    }
+    
+    .progress-fill.warning {
+      background: linear-gradient(90deg, #f39c12 0%, #e67e22 100%);
+    }
+    
+    .project-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 15px;
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    
+    .stat-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 25px;
+      border-radius: 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.3s;
+    }
+    
+    .stat-card:hover {
+      transform: translateY(-5px);
+    }
+    
+    .stat-card.blue {
+      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    }
+    
+    .stat-card.green {
+      background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    }
+    
+    .stat-card.orange {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+    
+    .stat-card.purple {
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+    
+    .stat-card.red {
+      background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+    }
+    
+    .stat-number {
+      font-size: 2.5em;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    
+    .stat-label {
+      font-size: 1em;
+      opacity: 0.9;
+    }
+    
+    .stat-money {
+      font-size: 1.8em;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #999;
+    }
+    
+    .empty-state-icon {
+      font-size: 4em;
+      margin-bottom: 20px;
+    }
+    
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      overflow-y: auto;
+    }
+    
+    .modal.active {
+      display: flex;
+    }
+    
+    .modal-content {
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      max-width: 800px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      margin: 20px;
+    }
+    
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    
+    .modal-close {
+      font-size: 30px;
+      cursor: pointer;
+      color: #999;
+    }
+    
+    .timeline {
+      position: relative;
+      padding-left: 30px;
+      margin: 20px 0;
+    }
+    
+    .timeline-item {
+      position: relative;
+      padding-bottom: 20px;
+    }
+    
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -23px;
+      top: 5px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #1e3c72;
+    }
+    
+    .timeline-item::after {
+      content: '';
+      position: absolute;
+      left: -18px;
+      top: 17px;
+      width: 2px;
+      height: calc(100% - 12px);
+      background: #e0e0e0;
+    }
+    
+    .timeline-item:last-child::after {
+      display: none;
+    }
+    
+    .timeline-item.completed::before {
+      background: #27ae60;
+    }
+    
+    .timeline-item.delayed::before {
+      background: #e74c3c;
+    }
+    
+    .timeline-date {
+      font-size: 12px;
+      color: #888;
+    }
+    
+    .timeline-content {
+      font-weight: 600;
+      color: #333;
+      margin-top: 5px;
+    }
+    
+    .stage-progress-timeline {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      margin: 20px 0;
+    }
+    
+    .stage-progress-timeline h4 {
+      color: #1e3c72;
+      margin-bottom: 20px;
+    }
+    
+    .stage-progress-item {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 20px;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      position: relative;
+    }
+    
+    .stage-progress-item.completed {
+      background: #d4edda;
+      border-left: 4px solid #27ae60;
+    }
+    
+    .stage-progress-item.current {
+      background: #d1ecf1;
+      border-left: 4px solid #17a2b8;
+    }
+    
+    .stage-progress-item.delayed {
+      background: #f8d7da;
+      border-left: 4px solid #e74c3c;
+    }
+    
+    .stage-progress-item.pending {
+      background: #f8f9fa;
+      border-left: 4px solid #e0e0e0;
+    }
+    
+    .stage-icon {
+      font-size: 2em;
+      min-width: 50px;
+      text-align: center;
+    }
+    
+    .stage-details {
+      flex: 1;
+    }
+    
+    .stage-name {
+      font-weight: bold;
+      color: #333;
+      font-size: 1.1em;
+      margin-bottom: 5px;
+    }
+    
+    .stage-dates {
+      font-size: 0.9em;
+      color: #666;
+      margin-bottom: 5px;
+    }
+    
+    .stage-status {
+      font-size: 0.85em;
+      padding: 4px 10px;
+      border-radius: 12px;
+      display: inline-block;
+      margin-top: 5px;
+    }
+    
+    .stage-status.completed {
+      background: #27ae60;
+      color: white;
+    }
+    
+    .stage-status.current {
+      background: #17a2b8;
+      color: white;
+    }
+    
+    .stage-status.delayed {
+      background: #e74c3c;
+      color: white;
+    }
+    
+    .stage-status.pending {
+      background: #6c757d;
+      color: white;
+    }
+    
+    .filter-bar {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    
+    .filter-bar select,
+    .filter-bar input {
+      padding: 10px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+    
+    .alert {
+      padding: 15px 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .alert-danger {
+      background: #f8d7da;
+      color: #721c24;
+      border-left: 4px solid #e74c3c;
+    }
+    
+    .alert-warning {
+      background: #fff3cd;
+      color: #856404;
+      border-left: 4px solid #f39c12;
+    }
+    
+    .alert-success {
+      background: #d4edda;
+      color: #155724;
+      border-left: 4px solid #28a745;
+    }
+    
+    .alert-info {
+      background: #d1ecf1;
+      color: #0c5460;
+      border-left: 4px solid #17a2b8;
+    }
+    
+    @media (max-width: 768px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+      
+      .project-info {
+        grid-template-columns: 1fr;
+      }
+      
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .sync-status {
+        position: static;
+        margin-top: 15px;
+        justify-content: center;
+      }
+      
+      .stage-progress-item {
+        flex-direction: column;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🏗️ Hệ thống Quản lý Dự án</h1>
+      <p>Theo dõi chi tiết từng giai đoạn dự án</p>
+      <div class="sync-status">
+        <div class="sync-indicator"></div>
+        <span>Đang lưu tự động</span>
+      </div>
+    </div>
+    
+    <div class="main-content">
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab('dashboard')">📊 Tổng quan</button>
+        <button class="tab" onclick="switchTab('delayed')" id="delayedTab">
+          ⚠️ Chậm tiến độ
+          <span class="tab-badge" id="delayedBadge">0</span>
+        </button>
+        <button class="tab" onclick="switchTab('projects')">📋 Dự án</button>
+        <button class="tab" onclick="switchTab('create')">➕ Tạo dự án</button>
+      </div>
+      
+      <!-- Dashboard Tab -->
+      <div id="dashboard" class="tab-content active">
+        <h2 style="margin-bottom: 20px;">Thống kê tổng quan</h2>
+        
+        <div id="delayAlert"></div>
+        
+        <div class="stats-grid">
+          <div class="stat-card blue">
+            <div class="stat-number" id="totalProjects">0</div>
+            <div class="stat-label">Tổng dự án</div>
+          </div>
+          <div class="stat-card orange">
+            <div class="stat-number" id="activeProjects">0</div>
+            <div class="stat-label">Đang thực hiện</div>
+          </div>
+          <div class="stat-card green">
+            <div class="stat-number" id="completedProjects">0</div>
+            <div class="stat-label">Hoàn thành</div>
+          </div>
+          <div class="stat-card purple">
+            <div class="stat-money" id="totalRevenue">0đ</div>
+            <div class="stat-label">Tổng doanh thu</div>
+          </div>
+        </div>
+        
+        <div class="stats-grid">
+          <div class="stat-card red" onclick="switchTab('delayed')" style="cursor: pointer;">
+            <div class="stat-number" id="criticalDelayed">0</div>
+            <div class="stat-label">🚨 Chậm nghiêm trọng</div>
+          </div>
+          <div class="stat-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);" onclick="switchTab('delayed')">
+            <div class="stat-number" id="warningDelayed">0</div>
+            <div class="stat-label">⚠️ Sắp trễ hạn</div>
+          </div>
+        </div>
+        
+        <h3 style="margin: 30px 0 15px 0;">Dự án theo giai đoạn</h3>
+        <div class="stats-grid">
+          <div class="stat-card" style="background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);">
+            <div class="stat-number" id="quoteStage">0</div>
+            <div class="stat-label">💰 Báo giá</div>
+          </div>
+          <div class="stat-card" style="background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);">
+            <div class="stat-number" id="orderStage">0</div>
+            <div class="stat-label">📦 Đặt hàng</div>
+          </div>
+          <div class="stat-card" style="background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%);">
+            <div class="stat-number" id="productionStage">0</div>
+            <div class="stat-label">🏭 Sản xuất</div>
+          </div>
+          <div class="stat-card" style="background: linear-gradient(135deg, #55efc4 0%, #00b894 100%);">
+            <div class="stat-number" id="installationStage">0</div>
+            <div class="stat-label">🔧 Lắp đặt</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Delayed Projects Tab -->
+      <div id="delayed" class="tab-content">
+        <h2 style="margin-bottom: 20px;">⚠️ Dự án Chậm Tiến độ</h2>
+        
+        <div class="alert alert-danger">
+          <span style="font-size: 24px;">🚨</span>
+          <div>
+            <strong>Cảnh báo:</strong> Có <span id="totalDelayedCount">0</span> dự án đang chậm tiến độ hoặc sắp trễ hạn!
+          </div>
+        </div>
+        
+        <div class="filter-bar">
+          <select id="filterDelayType" onchange="filterDelayedProjects()">
+            <option value="">Tất cả</option>
+            <option value="critical">Chậm nghiêm trọng</option>
+            <option value="warning">Sắp trễ hạn</option>
+          </select>
+        </div>
+        
+        <div id="delayedList" class="project-list"></div>
+      </div>
+      
+      <!-- Projects Tab -->
+      <div id="projects" class="tab-content">
+        <h2 style="margin-bottom: 20px;">Danh sách dự án</h2>
+        
+        <div class="filter-bar">
+          <input type="text" id="searchProject" placeholder="🔍 Tìm kiếm dự án..." onkeyup="filterProjects()" style="flex: 1; min-width: 250px;">
+          <select id="filterStage" onchange="filterProjects()">
+            <option value="">Tất cả giai đoạn</option>
+            <option value="quote">Báo giá</option>
+            <option value="order">Đặt hàng</option>
+            <option value="production">Sản xuất</option>
+            <option value="installation">Lắp đặt</option>
+            <option value="handover">Bàn giao</option>
+            <option value="payment">Thanh toán</option>
+            <option value="completed">Hoàn thành</option>
+          </select>
+        </div>
+        
+        <div id="projectList" class="project-list"></div>
+      </div>
+      
+      <!-- Create Tab -->
+      <div id="create" class="tab-content">
+        <h2 style="margin-bottom: 20px;">Tạo dự án mới</h2>
+        <form id="projectForm" onsubmit="addProject(event)">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Mã dự án *</label>
+              <input type="text" id="projectCode" required placeholder="VD: DA001">
+            </div>
+            <div class="form-group">
+              <label>Tên dự án *</label>
+              <input type="text" id="projectName" required placeholder="Tên dự án">
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>Khách hàng *</label>
+              <input type="text" id="projectClient" required placeholder="Tên khách hàng">
+            </div>
+            <div class="form-group">
+              <label>Số điện thoại</label>
+              <input type="tel" id="projectPhone" placeholder="0123456789">
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label>Địa chỉ</label>
+            <input type="text" id="projectAddress" placeholder="Địa chỉ dự án">
+          </div>
+          
+          <div class="form-group">
+            <label>Mô tả dự án</label>
+            <textarea id="projectDescription" placeholder="Mô tả chi tiết về dự án..."></textarea>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>Giá trị hợp đồng (VNĐ)</label>
+              <input type="number" id="projectValue" placeholder="0" min="0">
+            </div>
+            <div class="form-group">
+              <label>Ngày bắt đầu *</label>
+              <input type="date" id="projectStartDate" required>
+            </div>
+            <div class="form-group">
+              <label>Ngày dự kiến hoàn thành *</label>
+              <input type="date" id="projectEndDate" required>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>Người phụ trách</label>
+              <input type="text" id="projectManager" placeholder="Tên người phụ trách">
+            </div>
+            <div class="form-group">
+              <label>Giai đoạn hiện tại</label>
+              <select id="projectStage">
+                <option value="quote">Báo giá</option>
+                <option value="order">Đặt hàng</option>
+                <option value="production">Sản xuất</option>
+                <option value="installation">Lắp đặt</option>
+                <option value="handover">Bàn giao</option>
+                <option value="payment">Thanh toán</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="stage-timeline-form">
+            <h4>⏱️ Lịch trình từng giai đoạn (Tùy chọn)</h4>
+            <p style="color: #666; margin-bottom: 15px; font-size: 14px;">Nhập thời gian dự kiến cho từng giai đoạn để theo dõi chi tiết hơn</p>
+            
+            <div class="stage-input-group">
+              <h5>💰 Báo giá</h5>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Ngày bắt đầu</label>
+                  <input type="date" id="stage_quote_start">
+                </div>
+                <div class="form-group">
+                  <label>Ngày kết thúc dự kiến</label>
+                  <input type="date" id="stage_quote_end">
+                </div>
+              </div>
+            </div>
+            
+            <div class="stage-input-group">
+              <h5>📦 Đặt hàng</h5>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Ngày bắt đầu</label>
+                  <input type="date" id="stage_order_start">
+                </div>
+                <div class="form-group">
+                  <label>Ngày kết thúc dự kiến</label>
+                  <input type="date" id="stage_order_end">
+                </div>
+              </div>
+            </div>
+            
+            <div class="stage-input-group">
+              <h5>🏭 Sản xuất</h5>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Ngày bắt đầu</label>
+                  <input type="date" id="stage_production_start">
+                </div>
+                <div class="form-group">
+                  <label>Ngày kết thúc dự kiến</label>
+                  <input type="date" id="stage_production_end">
+                </div>
+              </div>
+            </div>
+            
+            <div class="stage-input-group">
+              <h5>🔧 Lắp đặt</h5>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Ngày bắt đầu</label>
+                  <input type="date" id="stage_installation_start">
+                </div>
+                <div class="form-group">
+                  <label>Ngày kết thúc dự kiến</label>
+                  <input type="date" id="stage_installation_end">
+                </div>
+              </div>
+            </div>
+            
+            <div class="stage-input-group">
+              <h5>📋 Bàn giao</h5>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Ngày bắt đầu</label>
+                  <input type="date" id="stage_handover_start">
+                </div>
+                <div class="form-group">
+                  <label>Ngày kết thúc dự kiến</label>
+                  <input type="date" id="stage_handover_end">
+                </div>
+              </div>
+            </div>
+            
+            <div class="stage-input-group">
+              <h5>💳 Thanh toán</h5>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Ngày bắt đầu</label>
+                  <input type="date" id="stage_payment_start">
+                </div>
+                <div class="form-group">
+                  <label>Ngày kết thúc dự kiến</label>
+                  <input type="date" id="stage_payment_end">
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <button type="submit" class="btn btn-primary">✅ Tạo dự án</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Detail Modal -->
+  <div id="detailModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Chi tiết dự án</h2>
+        <span class="modal-close" onclick="closeModal()">&times;</span>
+      </div>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+  
+  <!-- Stage Update Modal -->
+  <div id="stageModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Cập nhật giai đoạn</h2>
+        <span class="modal-close" onclick="closeStageModal()">&times;</span>
+      </div>
+      <div id="stageModalBody"></div>
+    </div>
+  </div>
+  
+  <script>
+    let projects = JSON.parse(localStorage.getItem('projects')) || [];
+    let currentEditProject = null;
+    
+    const stageOrder = ['quote', 'order', 'production', 'installation', 'handover', 'payment', 'completed'];
+    
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+      
+      event.target.classList.add('active');
+      document.getElementById(tabName).classList.add('active');
+      
+      if (tabName === 'projects') {
+        renderProjects();
+      } else if (tabName === 'dashboard') {
+        updateStats();
+      } else if (tabName === 'delayed') {
+        renderDelayedProjects();
+      }
+    }
+    
+    function calculateDaysRemaining(endDate) {
+      if (!endDate) return null;
+      const today = new Date();
+      const end = new Date(endDate);
+      const diffTime = end - today;
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      return diffDays;
+    }
+    
+    function getDelayStatus(project) {
+      if (project.stage === 'completed') return null;
+      
+      const daysRemaining = calculateDaysRemaining(project.endDate);
+      if (daysRemaining === null) return null;
+      
+      if (daysRemaining < 0) {
+        return {
+          type: 'critical',
+          days: Math.abs(daysRemaining),
+          message: `Trễ ${Math.abs(daysRemaining)} ngày`
+        };
+      } else if (daysRemaining <= 7) {
+        return {
+          type: 'warning',
+          days: daysRemaining,
+          message: `Còn ${daysRemaining} ngày`
+        };
+      }
+      return null;
+    }
+    
+    function getStageStatus(stage, currentStage) {
+      const currentIndex = stageOrder.indexOf(currentStage);
+      const stageIndex = stageOrder.indexOf(stage.name);
+      
+      if (stageIndex < currentIndex) {
+        return 'completed';
+      } else if (stageIndex === currentIndex) {
+        if (stage.actualEndDate) return 'completed';
+        if (stage.endDate) {
+          const daysRemaining = calculateDaysRemaining(stage.endDate);
+          if (daysRemaining < 0) return 'delayed';
+        }
+        return 'current';
+      } else {
+        return 'pending';
+      }
+    }
+    
+    function addProject(event) {
+      event.preventDefault();
+      
+      const stages = {};
+      ['quote', 'order', 'production', 'installation', 'handover', 'payment'].forEach(stageName => {
+        const startDate = document.getElementById(`stage_${stageName}_start`).value;
+        const endDate = document.getElementById(`stage_${stageName}_end`).value;
+        
+        if (startDate || endDate) {
+          stages[stageName] = {
+            name: stageName,
+            startDate: startDate,
+            endDate: endDate,
+            actualStartDate: null,
+            actualEndDate: null
+          };
+        }
+      });
+      
+      const project = {
+        id: Date.now(),
+        code: document.getElementById('projectCode').value,
+        name: document.getElementById('projectName').value,
+        client: document.getElementById('projectClient').value,
+        phone: document.getElementById('projectPhone').value,
+        address: document.getElementById('projectAddress').value,
+        description: document.getElementById('projectDescription').value,
+        value: parseInt(document.getElementById('projectValue').value) || 0,
+        startDate: document.getElementById('projectStartDate').value,
+        endDate: document.getElementById('projectEndDate').value,
+        manager: document.getElementById('projectManager').value,
+        stage: document.getElementById('projectStage').value,
+        stages: stages,
+        createdAt: new Date().toLocaleDateString('vi-VN'),
+        createdBy: 'User',
+        history: [{
+          date: new Date().toLocaleDateString('vi-VN'),
+          stage: document.getElementById('projectStage').value,
+          note: 'Tạo dự án mới',
+          user: 'User'
+        }],
+        payments: []
+      };
+      
+      projects.push(project);
+      saveData();
+      
+      document.getElementById('projectForm').reset();
+      alert('✅ Đã tạo dự án thành công!');
+      
+      switchTab('projects');
+      document.querySelectorAll('.tab')[2].classList.add('active');
+      document.querySelectorAll('.tab')[3].classList.remove('active');
+    }
+    
+    function saveData() {
+      localStorage.setItem('projects', JSON.stringify(projects));
+      localStorage.setItem('lastUpdate', new Date().toISOString());
+    }
+    
+    function renderProjects(filteredProjects = null) {
+      const projectList = document.getElementById('projectList');
+      const displayProjects = filteredProjects || projects;
+      
+      if (displayProjects.length === 0) {
+        projectList.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">📋</div>
+            <h3>Chưa có dự án nào</h3>
+            <p>Hãy tạo dự án đầu tiên của bạn!</p>
+          </div>
+        `;
+        return;
+      }
+      
+      projectList.innerHTML = displayProjects.map(project => {
+        const progress = getProgress(project.stage);
+        const delayStatus = getDelayStatus(project);
+        const daysRemaining = calculateDaysRemaining(project.endDate);
+        
+        let cardClass = 'project-card';
+        let progressClass = 'progress-fill';
+        
+        if (delayStatus) {
+          if (delayStatus.type === 'critical') {
+            cardClass += ' delayed';
+            progressClass += ' delayed';
+          } else {
+            cardClass += ' warning';
+            progressClass += ' warning';
+          }
+        }
+        
+        return `
+          <div class="${cardClass}">
+            ${delayStatus ? `
+              <div class="delay-badge delay-${delayStatus.type}">
+                ${delayStatus.type === 'critical' ? '🚨' : '⚠️'} ${delayStatus.message}
+              </div>
+            ` : ''}
+            
+            <div class="project-header">
+              <div>
+                <div class="project-title">${project.name}</div>
+                <div class="project-code">${project.code}</div>
+              </div>
+              <div class="stage-badge stage-${project.stage}">
+                ${getStageText(project.stage)}
+              </div>
+            </div>
+            
+            <div class="project-info">
+              <div class="info-item">
+                <div class="info-label">Khách hàng</div>
+                <div class="info-value">👤 ${project.client}</div>
+              </div>
+              <div class="info-item">
+                <div class="info-label">Giá trị</div>
+                <div class="info-value">💰 ${formatMoney(project.value)}</div>
+              </div>
+              <div class="info-item">
+                <div class="info-label">Người phụ trách</div>
+                <div class="info-value">👨‍💼 ${project.manager || 'Chưa phân công'}</div>
+              </div>
+              <div class="info-item">
+                <div class="info-label">Thời hạn</div>
+                <div class="info-value ${delayStatus ? (delayStatus.type === 'critical' ? 'delayed' : 'warning') : ''}">
+                  📅 ${project.endDate || 'Chưa xác định'}
+                  ${daysRemaining !== null && project.stage !== 'completed' ? 
+                    `<br><small>(${daysRemaining >= 0 ? 'Còn ' + daysRemaining : 'Trễ ' + Math.abs(daysRemaining)} ngày)</small>` 
+                    : ''}
+                </div>
+              </div>
+            </div>
+            
+            <div class="progress-bar">
+              <div class="${progressClass}" style="width: ${progress}%"></div>
+            </div>
+            <div style="text-align: right; font-size: 12px; color: #888; margin-top: 5px;">
+              Tiến độ: ${progress}%
+            </div>
+            
+            <div class="project-actions">
+              <button class="btn btn-primary btn-small" onclick="viewDetail(${project.id})">👁️ Chi tiết</button>
+              <button class="btn btn-info btn-small" onclick="viewStageProgress(${project.id})">📊 Theo dõi giai đoạn</button>
+              <button class="btn btn-success btn-small" onclick="nextStage(${project.id})">➡️ Giai đoạn tiếp</button>
+              <button class="btn btn-warning btn-small" onclick="addPayment(${project.id})">💳 Thanh toán</button>
+              <button class="btn btn-danger btn-small" onclick="deleteProject(${project.id})">🗑️ Xóa</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+    
+    function viewStageProgress(id) {
+      const project = projects.find(p => p.id === id);
+      if (!project) return;
+      
+      currentEditProject = project;
+      
+      const modalBody = document.getElementById('stageModalBody');
+      
+      const stageList = [
+        { name: 'quote', icon: '💰', label: 'Báo giá' },
+        { name: 'order', icon: '📦', label: 'Đặt hàng' },
+        { name: 'production', icon: '🏭', label: 'Sản xuất' },
+        { name: 'installation', icon: '🔧', label: 'Lắp đặt' },
+        { name: 'handover', icon: '📋', label: 'Bàn giao' },
+        { name: 'payment', icon: '💳', label: 'Thanh toán' }
+      ];
+      
+      modalBody.innerHTML = `
+        <div style="margin-bottom: 20px;">
+          <h3>${project.name}</h3>
+          <p style="color: #666;">${project.code}</p>
+        </div>
+        
+        <div class="stage-progress-timeline">
+          <h4>📊 Tiến độ từng giai đoạn</h4>
+          ${stageList.map(stageInfo => {
+            const stage = project.stages && project.stages[stageInfo.name] ? project.stages[stageInfo.name] : {};
+            const status = getStageStatus(stage, project.stage);
+            
+            let statusText = '';
+            let statusClass = '';
+            let dateInfo = '';
+            
+            if (status === 'completed') {
+              statusText = '✅ Hoàn thành';
+              statusClass = 'completed';
+              if (stage.actualEndDate) {
+                dateInfo = `Hoàn thành: ${stage.actualEndDate}`;
+              }
+            } else if (status === 'current') {
+              statusText = '🔄 Đang thực hiện';
+              statusClass = 'current';
+              if (stage.endDate) {
+                const daysRemaining = calculateDaysRemaining(stage.endDate);
+                if (daysRemaining !== null) {
+                  dateInfo = daysRemaining >= 0 ? 
+                    `Còn ${daysRemaining} ngày` : 
+                    `Trễ ${Math.abs(daysRemaining)} ngày`;
+                }
+              }
+            } else if (status === 'delayed') {
+              statusText = '🚨 Chậm tiến độ';
+              statusClass = 'delayed';
+              if (stage.endDate) {
+                const daysRemaining = calculateDaysRemaining(stage.endDate);
+                if (daysRemaining !== null && daysRemaining < 0) {
+                  dateInfo = `Trễ ${Math.abs(daysRemaining)} ngày`;
+                }
+              }
+            } else {
+              statusText = '⏳ Chưa bắt đầu';
+              statusClass = 'pending';
+              if (stage.startDate) {
+                dateInfo = `Dự kiến: ${stage.startDate}`;
+              }
+            }
+            
+            return `
+              <div class="stage-progress-item ${statusClass}">
+                <div class="stage-icon">${stageInfo.icon}</div>
+                <div class="stage-details">
+                  <div class="stage-name">${stageInfo.label}</div>
+                  <div class="stage-dates">
+                    ${stage.startDate ? `Bắt đầu: ${stage.actualStartDate || stage.startDate}` : 'Chưa có lịch trình'}
+                    ${stage.endDate ? ` → Kết thúc: ${stage.actualEndDate || stage.endDate}` : ''}
+                  </div>
+                  ${dateInfo ? `<div style="color: ${statusClass === 'delayed' ? '#e74c3c' : '#666'}; font-size: 0.9em; margin-top: 3px;">${dateInfo}</div>` : ''}
+                  <span class="stage-status ${statusClass}">${statusText}</span>
+                </div>
+                ${status === 'current' ? `
+                  <button class="btn btn-success btn-small" onclick="updateStageDate(${project.id}, '${stageInfo.name}')">
+                    Cập nhật
+                  </button>
+                ` : ''}
+              </div>
+            `;
+          }).join('')}
+        </div>
+        
+        <div style="margin-top: 20px; text-align: right;">
+          <button class="btn btn-primary" onclick="editStageTimeline(${project.id})">✏️ Chỉnh sửa lịch trình</button>
+          <button class="btn btn-success" onclick="closeStageModal()">Đóng</button>
+        </div>
+      `;
+      
+      document.getElementById('stageModal').classList.add('active');
+    }
+    
+    function updateStageDate(projectId, stageName) {
+      const project = projects.find(p => p.id === projectId);
+      if (!project) return;
+      
+      const action = prompt('Chọn hành động:\n1. Bắt đầu giai đoạn\n2. Hoàn thành giai đoạn\n3. Cập nhật ngày dự kiến', '2');
+      
+      if (!action) return;
+      
+      if (!project.stages) project.stages = {};
+      if (!project.stages[stageName]) {
+        project.stages[stageName] = { name: stageName };
+      }
+      
+      const today = new Date().toISOString().split('T')[0];
+      
+      if (action === '1') {
+        project.stages[stageName].actualStartDate = today;
+        alert('✅ Đã cập nhật ngày bắt đầu!');
+      } else if (action === '2') {
+        project.stages[stageName].actualEndDate = today;
+        alert('✅ Đã cập nhật ngày hoàn thành!');
+      } else if (action === '3') {
+        const newDate = prompt('Nhập ngày dự kiến kết thúc (YYYY-MM-DD):', project.stages[stageName].endDate || '');
+        if (newDate) {
+          project.stages[stageName].endDate = newDate;
+          alert('✅ Đã cập nhật ngày dự kiến!');
+        }
+      }
+      
+      saveData();
+      viewStageProgress(projectId);
+    }
+    
+    function editStageTimeline(projectId) {
+      const project = projects.find(p => p.id === projectId);
+      if (!project) return;
+      
+      const modalBody = document.getElementById('stageModalBody');
+      
+      const stageList = [
+        { name: 'quote', icon: '💰', label: 'Báo giá' },
+        { name: 'order', icon: '📦', label: 'Đặt hàng' },
+        { name: 'production', icon: '🏭', label: 'Sản xuất' },
+        { name: 'installation', icon: '🔧', label: 'Lắp đặt' },
+        { name: 'handover', icon: '📋', label: 'Bàn giao' },
+        { name: 'payment', icon: '💳', label: 'Thanh toán' }
+      ];
+      
+      modalBody.innerHTML = `
+        <div style="margin-bottom: 20px;">
+          <h3>Chỉnh sửa lịch trình: ${project.name}</h3>
+        </div>
+        
+        <form id="editStageForm" onsubmit="saveStageTimeline(event, ${projectId})">
+          ${stageList.map(stageInfo => {
+            const stage = project.stages && project.stages[stageInfo.name] ? project.stages[stageInfo.name] : {};
+            return `
+              <div class="stage-input-group">
+                <h5>${stageInfo.icon} ${stageInfo.label}</h5>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>Ngày bắt đầu dự kiến</label>
+                    <input type="date" id="edit_${stageInfo.name}_start" value="${stage.startDate || ''}">
+                  </div>
+                  <div class="form-group">
+                    <label>Ngày kết thúc dự kiến</label>
+                    <input type="date" id="edit_${stageInfo.name}_end" value="${stage.endDate || ''}">
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>Ngày bắt đầu thực tế</label>
+                    <input type="date" id="edit_${stageInfo.name}_actual_start" value="${stage.actualStartDate || ''}">
+                  </div>
+                  <div class="form-group">
+                    <label>Ngày kết thúc thực tế</label>
+                    <input type="date" id="edit_${stageInfo.name}_actual_end" value="${stage.actualEndDate || ''}">
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('')}
+          
+          <div style="margin-top: 20px; text-align: right;">
+            <button type="button" class="btn btn-warning" onclick="viewStageProgress(${projectId})">← Quay lại</button>
+            <button type="submit" class="btn btn-success">💾 Lưu lịch trình</button>
+          </div>
+        </form>
+      `;
+    }
+    
+    function saveStageTimeline(event, projectId) {
+      event.preventDefault();
+      
+      const project = projects.find(p => p.id === projectId);
+      if (!project) return;
+      
+      if (!project.stages) project.stages = {};
+      
+      const stageNames = ['quote', 'order', 'production', 'installation', 'handover', 'payment'];
+      
+      stageNames.forEach(stageName => {
+        const startDate = document.getElementById(`edit_${stageName}_start`).value;
+        const endDate = document.getElementById(`edit_${stageName}_end`).value;
+        const actualStartDate = document.getElementById(`edit_${stageName}_actual_start`).value;
+        const actualEndDate = document.getElementById(`edit_${stageName}_actual_end`).value;
+        
+        if (startDate || endDate || actualStartDate || actualEndDate) {
+          project.stages[stageName] = {
+            name: stageName,
+            startDate: startDate,
+            endDate: endDate,
+            actualStartDate: actualStartDate,
+            actualEndDate: actualEndDate
+          };
+        }
+      });
+      
+      saveData();
+      alert('✅ Đã lưu lịch trình thành công!');
+      viewStageProgress(projectId);
+    }
+    
+    function closeStageModal() {
+      document.getElementById('stageModal').classList.remove('active');
+      currentEditProject = null;
+    }
+    
+    function renderDelayedProjects() {
+      const delayedProjects = projects.filter(p => {
+        const status = getDelayStatus(p);
+        return status !== null;
+      });
+      
+      document.getElementById('totalDelayedCount').textContent = delayedProjects.length;
+      
+      const delayedList = document.getElementById('delayedList');
+      
+      if (delayedProjects.length === 0) {
+        delayedList.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">✅</div>
+            <h3>Tuyệt vời! Không có dự án nào chậm tiến độ</h3>
+            <p>Tất cả dự án đang đúng tiến độ</p>
+          </div>
+        `;
+        return;
+      }
+      
+      renderProjects(delayedProjects);
+    }
+    
+    function filterDelayedProjects() {
+      const filterType = document.getElementById('filterDelayType').value;
+      
+      let filtered = projects.filter(p => {
+        const status = getDelayStatus(p);
+        return status !== null;
+      });
+      
+      if (filterType === 'critical') {
+        filtered = filtered.filter(p => getDelayStatus(p).type === 'critical');
+      } else if (filterType === 'warning') {
+        filtered = filtered.filter(p => getDelayStatus(p).type === 'warning');
+      }
+      
+      const delayedList = document.getElementById('delayedList');
+      if (filtered.length === 0) {
+        delayedList.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">✅</div>
+            <h3>Không có dự án nào</h3>
+          </div>
+        `;
+        return;
+      }
+      
+      renderProjects(filtered);
+    }
+    
+    function getStageText(stage) {
+      const stageMap = {
+        'quote': '💰 Báo giá',
+        'order': '📦 Đặt hàng',
+        'production': '🏭 Sản xuất',
+        'installation': '🔧 Lắp đặt',
+        'handover': '📋 Bàn giao',
+        'payment': '💳 Thanh toán',
+        'completed': '✅ Hoàn thành'
+      };
+      return stageMap[stage] || stage;
+    }
+    
+    function getProgress(stage) {
+      const progressMap = {
+        'quote': 15,
+        'order': 30,
+        'production': 50,
+        'installation': 70,
+        'handover': 85,
+        'payment': 95,
+        'completed': 100
+      };
+      return progressMap[stage] || 0;
+    }
+    
+    function formatMoney(amount) {
+      return new Intl.NumberFormat('vi-VN', {
+        style: 'currency',
+        currency: 'VND'
+      }).format(amount);
+    }
+    
+    function nextStage(id) {
+      const project = projects.find(p => p.id === id);
+      
+      if (!project) return;
+      
+      const currentIndex = stageOrder.indexOf(project.stage);
+      if (currentIndex < stageOrder.length - 1) {
+        const newStage = stageOrder[currentIndex + 1];
+        project.stage = newStage;
+        project.history.push({
+          date: new Date().toLocaleDateString('vi-
